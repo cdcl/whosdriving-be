@@ -1,0 +1,25 @@
+name: Test new features
+on: 
+  pull_request:
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-node@v3
+        with:
+          go-version: '1.17'
+      - name: Install dependencies
+        run: go get .
+      - name: Build
+        run: go build -v ./...
+      - name: Test with the Go CLI
+        run: go test -json > WhosDriving-be.results.json
+      - name: Upload Go test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: WhosDriving-be
+          path: WhosDriving-be.results.json

@@ -10,6 +10,9 @@ COPY go.sum go.sum
 RUN go mod download
 
 # Copy the go source
+COPY graph/ graph/
+COPY assets/ assets/
+COPY tools.go tools.go
 COPY server.go server.go
 COPY server_test.go server_test.go
 
@@ -21,11 +24,15 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o whosdriving
 FROM gcr.io/distroless/static:nonroot
 # FROM gcr.io/distroless/static-debian11
 WORKDIR /app
-COPY --from=builder /app .
-USER nonroot:nonroot
 
+# copy the assets
+COPY assets/ assets/
+
+COPY --from=builder /app .
 # Do we create minimal stucture here ?
 # RUN mkdir -p /app/data
+
+USER nonroot:nonroot
 
 EXPOSE 9000
 ENTRYPOINT ["/app/whosdriving-be"]

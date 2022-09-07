@@ -15,3 +15,7 @@
 # vendor/
 test_new_db.sqlite3
 *.nogo
+
+whosdriving-dev.db
+
+*.sqlite3

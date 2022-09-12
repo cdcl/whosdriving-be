@@ -55,5 +55,11 @@
 	// "postCreateCommand": "go version",
 
 	// Uncomment to connect as a non-root user. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "vscode"
+	"remoteUser": "vscode",
+	"remoteEnv": {
+		"HOST": "localhost",
+		"PORT": "8080",
+		"DB_PATH": "./whosdriving-dev.db",
+		"DDL_PATH": "./assets/ddl.whosdriving-core"
+	}
 }

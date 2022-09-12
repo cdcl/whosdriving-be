@@ -1,0 +1,64 @@
+# GraphQL schema
+#
+
+enum Role {
+  ADMIN
+  STANDARD
+  UNREGISTRED
+}
+
+type User {
+  email: String!
+  name: String!
+  profile: String
+  role: Role! 
+}
+
+input NewUser {
+  email: String!
+  name: String!
+  profile: String
+}
+
+input NewRole {
+  email: String!
+  role: Role!
+}
+
+type Rotation {
+  id: ID!
+  name: String!
+  creator: User!
+  participants: [User!]!
+  rides: [Ride!]!
+}
+
+input NewRotation {
+  name: String!
+  emailCreator: String!
+  emailParticipants: [String!]!
+}
+
+type Ride {
+  id: ID!
+  conductor: User!
+  participants: [User!]!
+}
+
+input NewRide {
+  idRotation: ID!
+  emailConductor: String!
+  emailParticipants: [String!]!
+}
+
+type Query {
+  user(email:String!): User
+  rotations(email:String):[Rotation]
+}
+
+type Mutation {
+  findOrCreateUser(input: NewUser!): User!
+  changeUserRole(input: NewRole!): User!
+  addRotation(input: NewRotation!): Rotation!
+  addRide(input: NewRide!): Ride!
+}

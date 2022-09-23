@@ -3,14 +3,13 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"whosdriving-be/data_interface"
 	"whosdriving-be/graph"
 	"whosdriving-be/graph/generated"
 
@@ -67,69 +66,18 @@ func newDb(dbPath string, ddlPath string) *sql.DB {
 	newDb := !checkFileExists(dbPath)
 
 	log.Printf("Open database %s", dbPath)
-	db, dbErr := sql.Open("sqlite3", dbPath)
-	if dbErr != nil {
-		db.Close()
-		log.Fatal(dbErr)
-	}
-
-	// and validate dsn
-	pingErr := db.Ping()
-	if pingErr != nil {
-		db.Close()
-		log.Fatal(pingErr)
+	db, err := data_interface.NewConnection(dbPath)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// Migration this is a new DB
 	if newDb && checkFileExists(ddlPath) {
-		log.Printf("Create database with %s", ddlPath)
-		file, err := ioutil.ReadFile(ddlPath)
+		log.Printf("Migrate database %s", ddlPath)
+		err := data_interface.Migrate(ddlPath, db)
 		if err != nil {
 			db.Close()
-			log.Fatalf("Could not read the file due to this %s error", err)
-		}
-
-		tx, err := db.Begin()
-		if err != nil {
-			db.Close()
-			log.Fatalf("Couldn't start txn error: %s", err)
-		}
-		defer tx.Rollback()
-
-		// Here we searching for ; to split the file in commands
-		for _, chunk := range strings.Split(string(file), ";") {
-			var commandChunks []string
-			// Possibility to add full line comments with # (that we ignore here)
-			for _, line := range strings.Split(chunk, "\n") {
-				cleanLine := strings.TrimLeft(line, " ")
-				// skip empty lines
-				if len(cleanLine) == 0 {
-					continue
-				}
-
-				// Line is not a comment
-				if len(cleanLine) < 2 || cleanLine[0:2] != "--" {
-					commandChunks = append(commandChunks, cleanLine)
-					continue
-				}
-
-				// If comment start with #Print display it in console
-				if len(cleanLine) > 8 && cleanLine[0:8] == "--Print:" {
-					log.Println(strings.TrimSpace(cleanLine[8:]))
-				}
-			}
-
-			command := strings.Join(commandChunks, "\n")
-			//log.Println(command)
-			if _, err := tx.Exec(command); err != nil {
-				db.Close()
-				log.Fatalf("Fatal: Could not execute command [%s] error : %s", command, err)
-			}
-		}
-
-		if err := tx.Commit(); err != nil {
-			db.Close()
-			log.Fatalf("Fatal: Could not commit %s", err)
+			log.Fatal(err)
 		}
 	}
 

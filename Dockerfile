@@ -10,8 +10,9 @@ COPY go.sum go.sum
 RUN go mod download
 
 # Copy the go source
-COPY graph/ graph/
 COPY assets/ assets/
+COPY data_interface/ data_interface/
+COPY graph/ graph/
 COPY tools.go tools.go
 COPY server.go server.go
 COPY server_test.go server_test.go

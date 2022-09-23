@@ -69,7 +69,7 @@ func TestNewDb(t *testing.T) {
 func TestCreateNewDb(t *testing.T) {
 	os.Remove("./test_new_db.sqlite3")
 
-	expected := []string{"Users", "RefRole", "Rotation", "RotationParticipants", "Rides", "RideParticipants"}
+	expected := []string{"Users", "RefRole", "Rotations", "RotationParticipants", "Rides", "RideParticipants"}
 
 	db := newDb("./test_new_db.sqlite3", "./assets/ddl.whosdriving-core")
 	defer db.Close()

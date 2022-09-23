@@ -1,7 +1,7 @@
 --Print: start ddl.whosdriving-core
 CREATE TABLE IF NOT EXISTS RefRole(
-    RefCd INT PRIMARY KEY,
-    RefName TEXT NOT NULL
+    RefCd INTEGER NOT NULL PRIMARY KEY,
+    RefName TEXT NOT NULL UNIQUE
 );
 INSERT OR IGNORE into RefRole(RefCd, RefName) values (0, 'ADMIN'), (1, 'STANDARD'), (2, 'UNREGISTRED');
 
@@ -14,33 +14,72 @@ CREATE TABLE IF NOT EXISTS Users(
     profile TEXT NULL,
     roleCd INT NOT NULL,
     createTmstmp DATETIME NOT NULL,
-    lstUpdTmstmp DATETIME NOT NULL
+    lstUpdTmstmp DATETIME NOT NULL,
+    deleteTmstmp DATETIME NULL
 );
 
 --Print: create table Rotation
-CREATE TABLE IF NOT EXISTS Rotation( 
-    id INT PRIMARY KEY, 
+CREATE TABLE IF NOT EXISTS Rotations( 
+    id INTEGER NOT NULL PRIMARY KEY, 
     name TEXT NOT NULL,
     creatorEmail TEXT NOT NULL,
     createTmstmp DATETIME NOT NULL,
-    lstUpdTmstmp DATETIME NOT NULL
+    lstUpdTmstmp DATETIME NOT NULL,
+    deleteTmstmp DATETIME NULL,
+    UNIQUE(deleteTmstmp, creatorEmail, name),
+    FOREIGN KEY (creatorEmail) 
+    REFERENCES Users (email) 
+        ON DELETE RESTRICT
+        ON UPDATE RESTRICT
 );
 
 --Print: create table RotationParticipants
 CREATE TABLE IF NOT EXISTS RotationParticipants(
     rotationId INT NOT NULL,
-    email TEXT NOT NULL
-);
+    email TEXT NOT NULL,
+    PRIMARY KEY (rotationId, email),
+    FOREIGN KEY (rotationId)
+        REFERENCES Rotation (id) 
+            ON DELETE CASCADE 
+            ON UPDATE CASCADE,
+    FOREIGN KEY (email) 
+        REFERENCES Users (email) 
+            ON DELETE RESTRICT 
+            ON UPDATE RESTRICT
+) WITHOUT ROWID;
 
 --Print: create table Rides
 CREATE TABLE IF NOT EXISTS Rides(
-    id INT PRIMARY KEY, 
+    id INTEGER NOT NULL PRIMARY KEY, 
     rotationId INT NOT NULL,
-    riderEmail TEXT NOT NULL
+    riderEmail TEXT NOT NULL,
+    createTmstmp DATETIME NOT NULL,
+    lstUpdTmstmp DATETIME NOT NULL,
+    deleteTmstmp DATETIME NULL,
+    FOREIGN KEY (rotationId)
+        REFERENCES Rotation (id) 
+            ON DELETE CASCADE 
+            ON UPDATE CASCADE,
+    FOREIGN KEY (riderEmail)
+        REFERENCES Users (email) 
+            ON DELETE RESTRICT 
+            ON UPDATE RESTRICT
 );
 
 --Print: create table RideParticipants
 CREATE TABLE IF NOT EXISTS RideParticipants(
-    rideId INT NOT NULL,
-    email TEXT NOT NULL
-);
+    rideId INTEGER NOT NULL,
+    email TEXT NOT NULL,
+    PRIMARY KEY (rideId, email),
+    FOREIGN KEY (rideId)
+        REFERENCES Rides (id) 
+            ON DELETE CASCADE 
+            ON UPDATE CASCADE,
+    FOREIGN KEY (email) 
+        REFERENCES Users (email) 
+            ON DELETE RESTRICT
+            ON UPDATE RESTRICT
+) WITHOUT ROWID;
+
+--Print: Enable foreign_keys
+PRAGMA foreign_keys = ON;

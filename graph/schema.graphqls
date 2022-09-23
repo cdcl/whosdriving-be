@@ -9,14 +9,16 @@ enum Role {
 
 type User {
   email: String!
-  name: String!
+  firstName: String
+  lastName: String
   profile: String
-  role: Role! 
+  role: Role!
 }
 
 input NewUser {
   email: String!
-  name: String!
+  firstName: String
+  lastName:String
   profile: String
 }
 

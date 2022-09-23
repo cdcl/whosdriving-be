@@ -9,7 +9,7 @@ import (
 )
 
 type NewRide struct {
-	IDRotation        string   `json:"idRotation"`
+	IDRotation        int      `json:"idRotation"`
 	EmailConductor    string   `json:"emailConductor"`
 	EmailParticipants []string `json:"emailParticipants"`
 }
@@ -26,19 +26,20 @@ type NewRotation struct {
 }
 
 type NewUser struct {
-	Email   string  `json:"email"`
-	Name    string  `json:"name"`
-	Profile *string `json:"profile"`
+	Email     string  `json:"email"`
+	FirstName *string `json:"firstName"`
+	LastName  *string `json:"lastName"`
+	Profile   *string `json:"profile"`
 }
 
 type Ride struct {
-	ID           string  `json:"id"`
+	ID           int     `json:"id"`
 	Conductor    *User   `json:"conductor"`
 	Participants []*User `json:"participants"`
 }
 
 type Rotation struct {
-	ID           string  `json:"id"`
+	ID           int     `json:"id"`
 	Name         string  `json:"name"`
 	Creator      *User   `json:"creator"`
 	Participants []*User `json:"participants"`
@@ -46,10 +47,11 @@ type Rotation struct {
 }
 
 type User struct {
-	Email   string  `json:"email"`
-	Name    string  `json:"name"`
-	Profile *string `json:"profile"`
-	Role    Role    `json:"role"`
+	Email     string  `json:"email"`
+	FirstName *string `json:"firstName"`
+	LastName  *string `json:"lastName"`
+	Profile   *string `json:"profile"`
+	Role      Role    `json:"role"`
 }
 
 type Role string

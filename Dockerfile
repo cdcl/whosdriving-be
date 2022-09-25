@@ -1,5 +1,6 @@
 # Build the manager binary
-FROM golang:1.17 as builder
+FROM golang:1.18-alpine as builder
+RUN apk add --no-cache gcc g++ git openssh-client
 
 WORKDIR /app
 # Copy the Go Modules manifests
@@ -17,8 +18,11 @@ COPY tools.go tools.go
 COPY server.go server.go
 COPY server_test.go server_test.go
 
+
 # Build
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o whosdriving-be
+#try https://stackoverflow.com/questions/57921746/binary-was-compiled-with-cgo-enabled-0-go-sqlite3-requires-cgo-to-work-this
+RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.cn,direct go build -ldflags="-w -s" -o whosdriving-be
+#RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o whosdriving-be
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details

@@ -97,5 +97,5 @@ func main() {
 	http.Handle("/query", srv)
 
 	log.Printf("Connect to http://%s:%s/ for GraphQL playground", config.host, config.port)
-	log.Fatal(http.ListenAndServe(config.host+":"+config.port, nil))
+	log.Fatal(http.ListenAndServe(":"+config.port, nil))
 }

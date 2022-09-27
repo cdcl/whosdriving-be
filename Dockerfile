@@ -1,6 +1,6 @@
 # Build the manager binary
 FROM golang:1.18-alpine as builder
-RUN apk add --no-cache gcc g++ git openssh-client
+RUN apk add --no-cache gcc g++
 
 WORKDIR /app
 # Copy the Go Modules manifests
@@ -18,26 +18,21 @@ COPY tools.go tools.go
 COPY server.go server.go
 COPY server_test.go server_test.go
 
-
 # Build
-#try https://stackoverflow.com/questions/57921746/binary-was-compiled-with-cgo-enabled-0-go-sqlite3-requires-cgo-to-work-this
-RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.cn,direct go build -ldflags="-w -s" -o whosdriving-be
-#RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o whosdriving-be
+RUN GOOS=linux GOARCH=amd64 GO111MODULE=on CGO_ENABLED=1 go build -ldflags="-w -s" -o whosdriving-be
 
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
-# FROM gcr.io/distroless/static-debian11
+
+FROM alpine:latest
+RUN apk add --no-cache musl-dev
+
 WORKDIR /app
 
-# copy the assets
-COPY assets/ assets/
-
-COPY --from=builder /app .
-# Do we create minimal stucture here ?
-# RUN mkdir -p /app/data
-
+RUN adduser -D -g 'nonroot' nonroot
 USER nonroot:nonroot
 
-EXPOSE 9000
+# copy the assets
+COPY --from=builder --chown=nonroot:nonroot /app/assets/ assets/
+COPY --from=builder --chown=nonroot:nonroot /app .
+
+EXPOSE 8080
 ENTRYPOINT ["/app/whosdriving-be"]

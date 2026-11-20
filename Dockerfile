@@ -34,5 +34,7 @@ USER nonroot:nonroot
 COPY --from=builder --chown=nonroot:nonroot /app/assets/ assets/
 COPY --from=builder --chown=nonroot:nonroot /app .
 
+ENV PORT 8080
+
 EXPOSE 8080
 ENTRYPOINT ["/app/whosdriving-be"]
